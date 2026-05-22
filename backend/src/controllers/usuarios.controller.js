@@ -1,0 +1,67 @@
+const prisma = require("../data/prisma");
+
+const cadastrar = async (req, res) => {
+    const data = req.body;
+
+    const item = await prisma.usuarios.create({
+        data
+    });
+
+    res.json(item).status(201).end();
+};
+
+const listar = async (req, res) => {
+    const lista = await prisma.usuarios.findMany();
+
+    res.json(lista).status(200).end();
+};
+
+const buscar = async (req, res) => {
+    const { id } = req.params;
+    
+    const item = await prisma.usuarios.findUnique({
+        where: { id : Number(id) }
+    });
+
+    res.json(item).status(200).end();
+};
+
+const atualizar = async (req, res) => {
+    const { id } = req.params;
+    const dados = req.body;
+    
+    const item = await prisma.usuarios.update({
+        where: { id : Number(id) },
+        data: dados
+    });
+
+    res.json(item).status(200).end();
+};
+
+const excluir = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const item = await prisma.usuarios.delete({
+            where: { id: Number(id) }
+        });
+
+        return res.status(200).json(item);
+
+    } catch (error) {
+
+        if (error.code === 'P2003') {
+            return res.status(400).json({
+                erro: "Usuário possui registros vinculados."
+            });
+        }
+    }
+};
+
+module.exports = {
+    cadastrar,
+    listar,
+    buscar,
+    atualizar,
+    excluir
+}
