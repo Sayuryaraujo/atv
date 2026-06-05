@@ -25,6 +25,7 @@ Este projeto é um sistema que organiza as incrições, usuariose e eventos de u
 - JavaScript
 - HTML
 - CSS
+- Node
 - Prisma
 
 ## Como usar
@@ -32,3 +33,7 @@ Este projeto é um sistema que organiza as incrições, usuariose e eventos de u
 1. Clone o repositório:
 2.Rode no terminal do vscode o backend e teste no insomia
 3. Abre o site pelo index
+
+## Inspiração(google stich)
+![print](assets/imagens/p1.png)
+
