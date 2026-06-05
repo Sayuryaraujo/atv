@@ -1,0 +1,276 @@
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+body{
+    font-family:Arial,sans-serif;
+    background:#0f0c1a;
+    color:#e2e8f0;
+}
+#navbar,
+nav{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:0 20px;
+    height:60px;
+    background:#130f22;
+    border-bottom:1px solid #2d1b69;
+}
+.logo{
+    font-size:20px;
+    font-weight:bold;
+    color:#a78bfa;
+}
+nav button{
+    background:none;
+    border:none;
+    color:#94a3b8;
+    padding:8px 12px;
+    cursor:pointer;
+}
+nav button:hover{
+    color:#fff;
+}
+.pagina{
+    max-width:1100px;
+    margin:auto;
+    padding:30px 20px;
+}
+.hero{
+    background:#1a1530;
+    border:1px solid #2d1b69;
+    border-radius:15px;
+    padding:30px;
+    margin-bottom:30px;
+}
+.hero h1{
+    font-size:32px;
+    margin-bottom:10px;
+}
+.hero h1 span{
+    color:#a78bfa;
+}
+.hero p{
+    color:#94a3b8;
+    margin-bottom:20px;
+}
+.hero button{
+    background:#7c3aed;
+    color:white;
+    border:none;
+    padding:10px 15px;
+    border-radius:8px;
+    cursor:pointer;
+    margin-right:10px;
+}
+h1{
+    font-size:28px;
+}
+h2{
+    margin:20px 0 10px;
+}
+#resumo{
+    display:flex;
+    gap:15px;
+    flex-wrap:wrap;
+    margin-bottom:20px;
+}
+.card-resumo{
+    background:#1a1530;
+    border:1px solid #2d1b69;
+    border-radius:10px;
+    padding:15px;
+    min-width:150px;
+}
+.numero{
+    font-size:30px;
+    font-weight:bold;
+    color:#a78bfa;
+}
+.label{
+    color:#94a3b8;
+}
+#lista-eventos,
+#home-eventos{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+    gap:15px;
+}
+.card-evento{
+    background:#1a1530;
+    border:1px solid #2d1b69;
+    border-radius:10px;
+    overflow:hidden;
+}
+.card-evento img{
+    width:100%;
+    height:150px;
+    object-fit:cover;
+}
+.sem-imagem{
+    height:150px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-size:40px;
+    background:#130f22;
+}
+.info{
+    padding:15px;
+}
+.info h3{
+    margin-bottom:8px;
+}
+.info p{
+    margin-bottom:5px;
+    color:#94a3b8;
+    font-size:14px;
+}
+.vagas-ok{
+    color:#34d399 !important;
+}
+.vagas-sem{
+    color:#f87171 !important;
+}
+.botoes{
+    margin-top:10px;
+    display:flex;
+    gap:5px;
+    flex-wrap:wrap;
+}
+.topo{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:15px;
+}
+.topo button{
+    background:#7c3aed;
+    color:white;
+    border:none;
+    padding:10px 15px;
+    border-radius:8px;
+    cursor:pointer;
+}
+input,
+textarea,
+select{
+    width:100%;
+    padding:10px;
+    background:#1a1530;
+    border:1px solid #2d1b69;
+    border-radius:8px;
+    color:white;
+    margin-bottom:10px;
+}
+textarea{
+    resize:none;
+    height:80px;
+}
+label{
+    display:block;
+    margin:10px 0 5px;
+    color:#94a3b8;
+}
+table{
+    width:100%;
+    border-collapse:collapse;
+    background:#1a1530;
+}
+th{
+    background:#2d1b69;
+    padding:12px;
+    text-align:left;
+}
+td{
+    padding:12px;
+    border-top:1px solid #2d1b69;
+}
+.btn-acao{
+    background:#2d1b69;
+    color:white;
+    border:none;
+    padding:5px 10px;
+    border-radius:5px;
+    cursor:pointer;
+}
+.vermelho{
+    background:#dc2626;
+}
+.status{
+    padding:4px 10px;
+    border-radius:20px;
+    font-size:12px;
+}
+.confirmado{
+    background:#14532d;
+    color:#4ade80;
+}
+.pendente{
+    background:#78350f;
+    color:#facc15;
+}
+.cancelado{
+    background:#7f1d1d;
+    color:#f87171;
+}
+.modal-fundo{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.7);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:15px;
+}
+.modal-caixa{
+    width:100%;
+    max-width:450px;
+    background:#1a1530;
+    border-radius:12px;
+    padding:20px;
+}
+.modal-botoes{
+    display:flex;
+    gap:10px;
+    justify-content:flex-end;
+    margin-top:15px;
+}
+.btn-cancelar{
+    background:#374151;
+    color:white;
+}
+.btn-excluir{
+    background:#dc2626;
+    color:white;
+    margin-right:auto;
+}
+.vazio{
+    text-align:center;
+    padding:30px;
+    color:#94a3b8;
+}
+@media(max-width:700px){
+.topo{
+        flex-direction:column;
+        align-items:flex-start;
+        gap:10px;
+    }
+
+#resumo{
+        flex-direction:column;
+    }
+
+.hero h1{
+        font-size:24px;
+    }
+}
+.img-evento {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 10px;
+    display: block;
+}
