@@ -1,36 +1,36 @@
-var eventos = JSON.parse(localStorage.getItem("eventos")) || [];
-var usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
-var inscricoes = JSON.parse(localStorage.getItem("inscricoes")) || [];
+let eventos = [];
+let usuarios = [];
+let inscricoes = [];
 
-var eventoEditando = null;
-var usuarioEditando = null;
-var inscricaoEditando = null;
+let eventoEditando = null;
+let usuarioEditando = null;
 
-function salvarDados() {
-    localStorage.setItem("eventos", JSON.stringify(eventos));
-    localStorage.setItem("usuarios", JSON.stringify(usuarios));
-    localStorage.setItem("inscricoes", JSON.stringify(inscricoes));
+const $ = (id) => document.getElementById(id);
+const val = (id) => $(id).value;
+
+window.addEventListener("DOMContentLoaded", init);
+
+async function init() {
+    await carregarEventos();
+    await carregarUsuarios();
+    await carregarInscricoes();
+    mostrarPagina("home");
 }
-function gerarId() {
-    return Date.now();
-}
-function mostrarPagina(nomePagina) {
 
-    document.getElementById("home").style.display = "none";
-    document.getElementById("eventos").style.display = "none";
-    document.getElementById("usuarios").style.display = "none";
-    document.getElementById("inscricoes").style.display = "none";
+function mostrarPagina(pagina) {
 
-    document.getElementById(nomePagina).style.display = "block";
+    ["home", "eventos", "usuarios", "inscricoes"].forEach(p => {
+        $(p).style.display = "none";
+    });
+
+    $(pagina).style.display = "block";
 
     atualizarHome();
-    renderEventos();
-    renderUsuarios();
-    renderInscricoes();
 }
+
 function atualizarHome() {
 
-    document.getElementById("resumo").innerHTML = `
+    $("resumo").innerHTML = `
         <div class="card-resumo">
             <div class="numero">${eventos.length}</div>
             <div class="label">Eventos</div>
@@ -46,292 +46,202 @@ function atualizarHome() {
             <div class="label">Inscrições</div>
         </div>
     `;
+}
+
+async function carregarEventos() {
+    const res = await fetch("http://localhost:3000/eventos/listar");
+    eventos = await res.json();
+    renderEventos();
+}
+
+function renderEventos() {
 
     let html = "";
 
-    for (let i = 0; i < eventos.length; i++) {
+    eventos.forEach(e => {
 
         html += `
         <div class="card-evento">
-            <div class="info">
-                <h3>${eventos[i].nome}</h3>
-                <p>${eventos[i].data}</p>
-                <p>${eventos[i].local}</p>
-            </div>
-        </div>
-        `;
-    }
+            <h3>${e.titulo}</h3>
+            <p>${new Date(e.data_evento).toLocaleDateString()}</p>
+            <p>${e.local}</p>
 
-    document.getElementById("home-eventos").innerHTML = html;
+            <button onclick="excluirEvento(${e.id})">Excluir</button>
+        </div>`;
+    });
+
+    $("lista-eventos").innerHTML = html;
 }
-function abrirModalEvento(id) {
 
-    document.getElementById("modal-evento").style.display = "flex";
+window.excluirEvento = async function (id) {
 
-    if (id == null) {
+    await fetch(`http://localhost:3000/eventos/excluir/${id}`, {
+        method: "DELETE"
+    });
 
+    await carregarEventos();
+}
+
+async function carregarUsuarios() {
+    const res = await fetch("http://localhost:3000/usuarios/listar");
+    usuarios = await res.json();
+    renderUsuarios();
+}
+
+function renderUsuarios() {
+
+    let html = "";
+
+    usuarios.forEach(u => {
+
+        html += `
+        <tr>
+            <td>${u.nome}</td>
+            <td>${u.email}</td>
+            <td>${u.telefone || ""}</td>
+            <td>
+                <button onclick="excluirUsuario(${u.id})">Excluir</button>
+            </td>
+        </tr>`;
+    });
+
+    $("tbody-usuarios").innerHTML = html;
+}
+
+window.excluirUsuario = async function (id) {
+
+    await fetch(`http://localhost:3000/usuarios/excluir/${id}`, {
+        method: "DELETE"
+    });
+
+    await carregarUsuarios();
+}
+
+async function carregarInscricoes() {
+    const res = await fetch("http://localhost:3000/incricoes/listar");
+    inscricoes = await res.json();
+    renderInscricoes();
+}
+
+function renderInscricoes() {
+
+    let html = "";
+
+    inscricoes.forEach(i => {
+
+        html += `
+        <tr>
+            <td>${i.usuarios?.nome || "Sem usuário"}</td>
+            <td>${i.eventos?.titulo || "Sem evento"}</td>
+            <td>${i.status}</td>
+        </tr>`;
+    });
+
+    $("tbody-inscricoes").innerHTML = html;
+}
+
+window.salvarInscricao = async function () {
+
+    const data = {
+        usuariosId: Number(val("ins-usuario")),
+        eventosId: Number(val("ins-evento")),
+        status: val("ins-status")
+    };
+
+    await fetch("http://localhost:3000/incricoes/cadastrar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+    });
+
+    await carregarInscricoes();
+}
+
+window.abrirModalEvento = function (id) {
+
+    $("modal-evento").style.display = "flex";
+
+    if (!id) {
         eventoEditando = null;
-
-        document.getElementById("ev-nome").value = "";
-        document.getElementById("ev-desc").value = "";
-        document.getElementById("ev-data").value = "";
-        document.getElementById("ev-local").value = "";
-        document.getElementById("ev-capacidade").value = "";
-        document.getElementById("ev-categoria").value = "Tecnologia";
-        document.getElementById("ev-imagem").value = "";
-
         return;
     }
 
     eventoEditando = id;
 
-    let evento = eventos.find(e => e.id == id);
+    const e = eventos.find(x => x.id == id);
 
-    document.getElementById("ev-nome").value = evento.nome;
-    document.getElementById("ev-desc").value = evento.descricao;
-    document.getElementById("ev-data").value = evento.data;
-    document.getElementById("ev-local").value = evento.local;
-    document.getElementById("ev-capacidade").value = evento.capacidade;
-    document.getElementById("ev-categoria").value = evento.categoria;
-    document.getElementById("ev-imagem").value = evento.imagem;
+    $("ev-nome").value = e.titulo;
+    $("ev-desc").value = e.descricao;
+    $("ev-data").value = e.data_evento.split("T")[0];
+    $("ev-local").value = e.local;
+    $("ev-capacidade").value = e.capacidade_maxima;
 }
-function fecharModalEvento() {
-    document.getElementById("modal-evento").style.display = "none";
-}
-function salvarEvento() {
 
-    let nome = document.getElementById("ev-nome").value;
+window.salvarEvento = async function () {
 
-    if (nome == "") {
-        alert("Digite o nome do evento.");
-        return;
-    }
-
-    let evento = {
-        id: eventoEditando || gerarId(),
-        nome: nome,
-        descricao: document.getElementById("ev-desc").value,
-        data: document.getElementById("ev-data").value,
-        local: document.getElementById("ev-local").value,
-        capacidade: document.getElementById("ev-capacidade").value,
-        categoria: document.getElementById("ev-categoria").value,
-        imagem: document.getElementById("ev-imagem").value
+    const data = {
+        titulo: val("ev-nome"),
+        descricao: val("ev-desc"),
+        data_evento: val("ev-data"),
+        local: val("ev-local"),
+        capacidade_maxima: Number(val("ev-capacidade"))
     };
 
-    if (eventoEditando == null) {
-        eventos.push(evento);
-    } else {
-        let indice = eventos.findIndex(e => e.id == eventoEditando);
-        eventos[indice] = evento;
-    }
+    const url = eventoEditando
+        ? `http://localhost:3000/eventos/atualizar/${eventoEditando}`
+        : `http://localhost:3000/eventos/cadastrar`;
 
-    salvarDados();
-    fecharModalEvento();
-    renderEventos();
+    const method = eventoEditando ? "PUT" : "POST";
+
+    await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+    });
+
+    await carregarEventos();
 }
-function excluirEvento() {
 
-    if (!confirm("Excluir evento?")) return;
+window.abrirModalUsuario = function (id) {
 
-    eventos = eventos.filter(e => e.id != eventoEditando);
+    $("modal-usuario").style.display = "flex";
 
-    salvarDados();
-    fecharModalEvento();
-    renderEventos();
-}
-function renderEventos() {
-
-    let busca = document.getElementById("busca-evento").value.toLowerCase();
-
-    let html = "";
-
-    for (let i = 0; i < eventos.length; i++) {
-
-        let evento = eventos[i];
-
-        if (!evento.nome.toLowerCase().includes(busca)) {
-            continue;
-        }
-
-        html += `
-    <div class="card-evento">
-
-    <img src="${eventos[i].imagem}" 
-         alt="${eventos[i].nome}" 
-         class="img-evento">
-
-    <div class="info">
-        <h3>${eventos[i].nome}</h3>
-        <p>${eventos[i].data}</p>
-        <p>${eventos[i].local}</p>
-    </div>
-
-    </div>
-`;
-    }
-
-    document.getElementById("lista-eventos").innerHTML = html;
-}
-function abrirModalUsuario(id) {
-
-    document.getElementById("modal-usuario").style.display = "flex";
-
-    if (id == null) {
-
+    if (!id) {
         usuarioEditando = null;
-
-        document.getElementById("us-nome").value = "";
-        document.getElementById("us-email").value = "";
-        document.getElementById("us-telefone").value = "";
-
         return;
     }
 
     usuarioEditando = id;
 
-    let usuario = usuarios.find(u => u.id == id);
+    const u = usuarios.find(x => x.id == id);
 
-    document.getElementById("us-nome").value = usuario.nome;
-    document.getElementById("us-email").value = usuario.email;
-    document.getElementById("us-telefone").value = usuario.telefone;
+    $("us-nome").value = u.nome;
+    $("us-email").value = u.email;
+    $("us-telefone").value = u.telefone;
 }
-function fecharModalUsuario() {
-    document.getElementById("modal-usuario").style.display = "none";
-}
-function salvarUsuario() {
 
-    let usuario = {
-        id: usuarioEditando || gerarId(),
-        nome: document.getElementById("us-nome").value,
-        email: document.getElementById("us-email").value,
-        telefone: document.getElementById("us-telefone").value
+window.salvarUsuario = async function () {
+
+    const data = {
+        nome: val("us-nome"),
+        email: val("us-email"),
+        telefone: val("us-telefone")
     };
 
-    if (usuarioEditando == null) {
-        usuarios.push(usuario);
-    } else {
+    const url = usuarioEditando
+        ? `http://localhost:3000/usuarios/atualizar/${usuarioEditando}`
+        : `http://localhost:3000/usuarios/cadastrar`;
 
-        let indice = usuarios.findIndex(u => u.id == usuarioEditando);
-        usuarios[indice] = usuario;
-    }
+    const method = usuarioEditando ? "PUT" : "POST";
 
-    salvarDados();
-    fecharModalUsuario();
-    renderUsuarios();
-}
-function excluirUsuario() {
-
-    if (!confirm("Excluir usuário?")) return;
-
-    usuarios = usuarios.filter(u => u.id != usuarioEditando);
-
-    salvarDados();
-    fecharModalUsuario();
-    renderUsuarios();
-}
-function renderUsuarios() {
-
-    let busca = document.getElementById("busca-usuario").value.toLowerCase();
-
-    let html = "";
-
-    for (let i = 0; i < usuarios.length; i++) {
-
-        let usuario = usuarios[i];
-
-        if (
-            !usuario.nome.toLowerCase().includes(busca) &&
-            !usuario.email.toLowerCase().includes(busca)
-        ) {
-            continue;
-        }
-
-        html += `
-        <tr>
-            <td>${usuario.nome}</td>
-            <td>${usuario.email}</td>
-            <td>${usuario.telefone}</td>
-            <button class="btn-acao"
-                onclick="abrirModalUsuario(${usuario.id})">
-                Editar
-            </button>
-        </tr>
-        `;
-    }
-
-    document.getElementById("tbody-usuarios").innerHTML = html;
-}
-function abrirModalInscricao(id) {
-
-    document.getElementById("modal-inscricao").style.display = "flex";
-
-    let selectUsuario = document.getElementById("ins-usuario");
-    let selectEvento = document.getElementById("ins-evento");
-
-    selectUsuario.innerHTML = "";
-    selectEvento.innerHTML = "";
-
-    usuarios.forEach(usuario => {
-        selectUsuario.innerHTML += `
-        <option value="${usuario.id}">
-            ${usuario.nome}
-        </option>`;
+    await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
     });
 
-    eventos.forEach(evento => {
-        selectEvento.innerHTML += `
-        <option value="${evento.id}">
-            ${evento.nome}
-        </option>`;
-    });
-
-    inscricaoEditando = id;
+    await carregarUsuarios();
 }
-function fecharModalInscricao() {
-    document.getElementById("modal-inscricao").style.display = "none";
-}
-function salvarInscricao() {
 
-    let usuarioId = document.getElementById("ins-usuario").value;
-    let eventoId = document.getElementById("ins-evento").value;
-    let status = document.getElementById("ins-status").value;
-
-    let usuario = usuarios.find(u => u.id == usuarioId);
-    let evento = eventos.find(e => e.id == eventoId);
-
-    let inscricao = {
-        id: gerarId(),
-        usuarioNome: usuario.nome,
-        usuarioEmail: usuario.email,
-        eventoNome: evento.nome,
-        status: status
-    };
-
-    inscricoes.push(inscricao);
-
-    salvarDados();
-    fecharModalInscricao();
-    renderInscricoes();
-}
-function excluirInscricao() {
-    fecharModalInscricao();
-}
-function renderInscricoes() {
-
-    let html = "";
-
-    for (let i = 0; i < inscricoes.length; i++) {
-
-        let inscricao = inscricoes[i];
-
-        html += `
-        <tr>
-            <td>${inscricao.usuarioNome}</td>
-            <td>${inscricao.eventoNome}</td>
-            <td>${inscricao.status}</td>
-        </tr>
-        `;
-    }
-    document.getElementById("tbody-inscricoes").innerHTML = html;
-}
-mostrarPagina("home");
+window.fecharModalEvento = () => $("modal-evento").style.display = "none";
+window.fecharModalUsuario = () => $("modal-usuario").style.display = "none";

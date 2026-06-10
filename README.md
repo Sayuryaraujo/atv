@@ -31,6 +31,10 @@ Este projeto é um sistema que organiza as incrições, usuariose e eventos de u
 ## Como usar
 
 1. Clone o repositório:
-2.Rode no terminal do vscode o backend e teste no insomia
-3. Abre o site pelo index
+git clone e o url da pasta
+2. Rode no terminal do vscode o backend:
+cd backend
+npm install
+npm run dev
+3. Abre o site pelo index e o backend teste no insomia
 

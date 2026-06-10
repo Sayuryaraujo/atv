@@ -15,4 +15,8 @@ router.get("/buscar/:id", buscar);
 router.put("/atualizar/:id", atualizar);
 router.delete("/excluir/:id", excluir);
 
+router.get("/teste", (req, res) => {
+    res.json({ mensagem: "Backend funcionando" });
+});
+
 module.exports = router;

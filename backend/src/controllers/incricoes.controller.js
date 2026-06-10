@@ -1,52 +1,93 @@
 const prisma = require("../data/prisma");
-const { limiteParticipantes, verificarDuplicidade, verificarPrazoCancelamento, atualizarListaEspera } = require("../services/incrições.service");
+const {
+    limiteParticipantes,
+    verificarDuplicidade,
+    verificarPrazoCancelamento,
+    atualizarListaEspera
+} = require("../services/incrições.service");
 
 const cadastrar = async (req, res) => {
-    try{
-    const data = req.body;
+    try {
+        const data = req.body;
 
-    await verificarDuplicidade(data.usuariosId, data.eventosId);
+        await verificarDuplicidade(data.usuariosId, data.eventosId);
 
-    let status =  await limiteParticipantes(data.usuariosId, data.eventosId);
+        let status = await limiteParticipantes(
+            data.usuariosId,
+            data.eventosId
+        );
 
-    data.status = status;
+        data.status = status;
 
-    const inscricao = await prisma.incricoes.create({
-        data
-    });
+        const inscricao = await prisma.incricoes.create({
+            data
+        });
 
-    res.json(inscricao).status(201).end();
-}catch(error){
-    res.status(500).json(error.toString()).end();
-}
+        return res.status(201).json(inscricao);
+
+    } catch (error) {
+        return res.status(500).json({
+            error: error.toString()
+        });
+    }
 };
 
 const listar = async (req, res) => {
-    const lista = await prisma.incricoes.findMany();
+    try {
+        const lista = await prisma.incricoes.findMany({
+            include: {
+                usuarios: true,
+                eventos: true
+            }
+        });
 
-    res.json(lista).status(200).end();
+        return res.status(200).json(lista);
+
+    } catch (error) {
+        return res.status(500).json({
+            error: error.toString()
+        });
+    }
 };
 
 const buscar = async (req, res) => {
-    const { id } = req.params;
-    
-    const item = await prisma.incricoes.findUnique({
-        where: { id : Number(id) }
-    });
+    try {
+        const { id } = req.params;
 
-    res.json(item).status(200).end();
+        const item = await prisma.incricoes.findUnique({
+            where: { id: Number(id) },
+            include: {
+                usuarios: true,
+                eventos: true
+            }
+        });
+
+        return res.status(200).json(item);
+
+    } catch (error) {
+        return res.status(500).json({
+            error: error.toString()
+        });
+    }
 };
 
 const atualizar = async (req, res) => {
-    const { id } = req.params;
-    const dados = req.body;
-    
-    const item = await prisma.incricoes.update({
-        where: { id : Number(id) },
-        data: dados
-    });
+    try {
+        const { id } = req.params;
+        const dados = req.body;
 
-    res.json(item).status(200).end();
+        const item = await prisma.incricoes.update({
+            where: { id: Number(id) },
+            data: dados
+        });
+
+        return res.status(200).json(item);
+
+    } catch (error) {
+        return res.status(500).json({
+            error: error.toString()
+        });
+    }
 };
 
 const excluir = async (req, res) => {
@@ -69,10 +110,12 @@ const excluir = async (req, res) => {
             await atualizarListaEspera(inscricao.eventosId);
         }
 
-        res.json(item).status(200).end();
+        return res.status(200).json(item);
 
     } catch (error) {
-        res.status(500).json(error.toString()).end();
+        return res.status(500).json({
+            error: error.toString()
+        });
     }
 };
 
@@ -82,6 +125,4 @@ module.exports = {
     buscar,
     atualizar,
     excluir
-}
-
-
+};
